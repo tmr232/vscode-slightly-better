@@ -50,6 +50,10 @@
       {
         "command": "slightly-better.toggle-line-comment",
         "title": "Slightly Better: Toggle Line Comment"
+      },
+      {
+        "command": "slightly-better.extract-variable",
+        "title": "Slightly Better: Extract Variable"
       }
     ],
     "keybindings": [
