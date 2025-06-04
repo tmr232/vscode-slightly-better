@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    /* Most of our code runs in the browser, so we'll declare it as such for now */
+    "lib": ["es2023"],
+    "target": "es2020",
+    "module": "node16",
+    "moduleDetection": "force",
+    "allowJs": true,
+    /* Bundler mode */
+    "moduleResolution": "node16",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    /* Linting */
+    "skipLibCheck": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "vscode": ["./mocks/vscode.ts"]
+    }
+  },
+  "exclude": ["./dist"]
+  // "include": ["src/**/*.ts", "eslint.config.js"]
+}

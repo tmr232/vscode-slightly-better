@@ -1,0 +1,66 @@
+{
+  "main": "./dist/extension.js",
+  "module": "index.ts",
+  "type": "module",
+  "dependencies": {
+    "@types/vscode": "^1.94.0",
+    "@vscode/vsce": "^3.1.1",
+    "esbuild": "^0.25.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@eslint/js": "^9.12.0",
+    "@types/bun": "latest",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.12.0",
+    "oxlint": "0.15.13",
+    "typescript-eslint": "^8.16.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.6.2"
+  },
+  "scripts": {
+    "dev": "echo 'Open this directory in VSCode and then run your extension with F5 or `Run and Debug > Run Extension`!'",
+    "build": "bun run ./scripts/build-with-esbuild.ts",
+    "watch": "bun run ./scripts/watch-with-esbuild.ts",
+    "vsce-package": "bun run vsce package",
+    "vsce-publish": "bun run vsce publish",
+    "package": "bun run build && bun run vsce-package",
+    "publish": "bun run package && bun run vsce-publish",
+    "oxlint-fix": "bunx oxlint --ignore-path=oxlint-ignore.txt --fix -D correctness -D perf -D suspicious -A no-await-in-loop",
+    "oxlint-ci": "bunx oxlint --ignore-path=oxlint-ignore.txt  -D correctness -D perf -D suspicious -A no-await-in-loop",
+    "lint": "bunx biome check --fix && bun oxlint-fix && bunx eslint --fix && bunx tsc --noEmit",
+    "ci": "bunx biome ci && bun oxlint-ci && bunx eslint && bunx tsc --noEmit"
+  },
+  "//": "START EXTENSION ATTRIBUTES",
+  "publisher": "tamir-bahar",
+  "name": "slightly-better",
+  "version": "1.0.0",
+  "description": "Slightly Better VSCode",
+  "displayName": "Slightly Better",
+  "categories": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tmr232/vscode-slightly-better.git"
+  },
+  "preview": true,
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "slightly-better.toggle-line-comment",
+        "title": "Slightly Better: Toggle Line Comment"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "slightly-better.toggle-line-comment",
+        "key": "ctrl+/",
+        "when": "editorTextFocus && !editorReadonly"
+      }
+    ]
+  },
+  "engines": {
+    "vscode": "^1.86.0"
+  }
+}
