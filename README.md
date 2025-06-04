@@ -4,5 +4,14 @@ Make VSCode _slightly_ better.
 
 ## Features
 
-- JetBrains-like toggle-line-comment, which drops to the next line after toggling.
-  Binds to `Ctrl+/`.
+### Better Toggle-Line-Comment
+
+When toggling a line comment, the cursor automatically moves to the next line.
+
+Keybinging: `Ctrl+/`
+
+### Better Extract-Variable
+
+When extracting variables, show multiple options and let the user choose.
+
+Keybinding: `Ctrl+Alt+V`

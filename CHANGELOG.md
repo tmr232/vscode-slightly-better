@@ -6,8 +6,14 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-06-04
+
+### Added
+
+- extracting a variable shows multiple options (`Ctrl+Alt+V`)
+
 ## [1.0.0] - 2025-06-04
 
 ### Added
 
-- JetBrains-like toggle-line-comment that move to the next line if the selection is empty.
+- toggling a line comment automatically moves the cursor to the next line (`Ctrl+/`)
