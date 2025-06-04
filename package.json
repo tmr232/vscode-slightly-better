@@ -35,7 +35,7 @@
   "//": "START EXTENSION ATTRIBUTES",
   "publisher": "tamir-bahar",
   "name": "slightly-better",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Slightly Better VSCode",
   "displayName": "Slightly Better",
   "categories": [],
@@ -61,6 +61,11 @@
         "command": "slightly-better.toggle-line-comment",
         "key": "ctrl+/",
         "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "command": "slightly-better.extract-variable",
+        "key": "ctrl+alt+v",
+        "when": "editorHasCodeActionsProvider && textInputFocus && !editorReadonly"
       }
     ]
   },
