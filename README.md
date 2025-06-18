@@ -15,3 +15,13 @@ Keybinging: `Ctrl+/`
 When extracting variables, show multiple options and let the user choose.
 
 Keybinding: `Ctrl+Alt+V`
+
+Only tested for Python code.
+
+### Better Extract-Method
+
+When extracting methods, show multiple options and let the user choose.
+
+Keybinding: `Ctrl+Alt+M`
+
+Only tested for Python ode.
