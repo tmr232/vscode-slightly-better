@@ -1,7 +1,5 @@
 import * as vscode from "vscode";
 
-const MAX_EXPANSIONS = 5;
-const REFACTOR_EXTRACT_VARIABLE = "refactor.extract.variable";
 type RefactorAction = { codeAction: vscode.CodeAction; text: string };
 
 /**
@@ -42,32 +40,11 @@ async function findCodeActionsByKind(
   return codeActions;
 }
 
-/**
- * Find the smallest variable-extraction refactoring available in the current editor line.
- * @param editor Editor to use for the search
- * @returns Smallest available refactoring if found, else undefined.
- */
-async function findFirstRefactor(
-  editor: vscode.TextEditor,
-): Promise<RefactorAction | undefined> {
-  // Expand the selection until we find a relevant refactoring,
-  // or the selection exceeds a single line.
-  while (editor.selection.isSingleLine) {
-    await vscode.commands.executeCommand("editor.action.smartSelect.expand");
-    const actions = await findCodeActionsByKind(
-      REFACTOR_EXTRACT_VARIABLE,
-      editor.document.uri,
-      editor.selection,
-    );
-    const action = actions[0];
-    if (action) {
-      return {
-        codeAction: action,
-        text: editor.document.getText(editor.selection),
-      };
-    }
-  }
-  return undefined;
+async function expandSelection(editor: vscode.TextEditor): Promise<boolean> {
+  const oldSelection = editor.selection;
+  await vscode.commands.executeCommand("editor.action.smartSelect.expand");
+  const newSelection = editor.selection;
+  return !newSelection.isEqual(oldSelection);
 }
 
 /**
@@ -79,15 +56,16 @@ async function findFirstRefactor(
  * @param editor Editor to work in
  * @returns All available extract-variable refactorings expanding from the current selection.
  */
-async function collectExtractVariableActions(
+async function collectActionsByKind(
   editor: vscode.TextEditor,
+  kind: string,
 ): Promise<RefactorAction[]> {
   const extractionActions: RefactorAction[] = [];
 
   if (!editor.selection.isEmpty) {
     // If we already have a selection - we refactor using it and stop.
     const actions = await findCodeActionsByKind(
-      REFACTOR_EXTRACT_VARIABLE,
+      kind,
       editor.document.uri,
       editor.selection,
     );
@@ -101,31 +79,50 @@ async function collectExtractVariableActions(
     return extractionActions;
   }
 
-  const firstRefactor = await findFirstRefactor(editor);
-  if (!firstRefactor) {
-    return extractionActions;
-  }
-
-  extractionActions.push(firstRefactor);
-  for (let i = 0; i < MAX_EXPANSIONS; ++i) {
-    await vscode.commands.executeCommand("editor.action.smartSelect.expand");
-    const actions = await findCodeActionsByKind(
-      REFACTOR_EXTRACT_VARIABLE,
+  do {
+    for (const codeAction of await findCodeActionsByKind(
+      kind,
       editor.document.uri,
       editor.selection,
-    );
-    const action = actions[0];
-    if (!action) {
-      // Can't extract from the current selection - so probably no need to expand further.
-      break;
+    )) {
+      extractionActions.push({
+        codeAction,
+        text: editor.document.getText(editor.selection),
+      });
     }
-    extractionActions.push({
-      codeAction: action,
-      text: editor.document.getText(editor.selection),
-    });
-  }
+  } while (await expandSelection(editor));
 
   return extractionActions;
+}
+
+async function chooseActionKind(
+  refactorActions: RefactorAction[],
+): Promise<RefactorAction[] | undefined> {
+  console.log(refactorActions);
+  if (refactorActions.length === 0) {
+    vscode.window.showInformationMessage("No refactoring possible.");
+    return;
+  }
+
+  const actionsByKind: Map<string, RefactorAction[]> = new Map();
+  for (const refactorAction of refactorActions) {
+    const actionKey = refactorAction.codeAction.title;
+    const actions = actionsByKind.get(actionKey) ?? [];
+    actions.push(refactorAction);
+    actionsByKind.set(actionKey, actions);
+  }
+
+  if (actionsByKind.size === 1) {
+    return refactorActions;
+  }
+
+  const selectedKind = await vscode.window.showQuickPick(
+    Array.from(actionsByKind.keys()),
+  );
+  if (!selectedKind) {
+    return;
+  }
+  return actionsByKind.get(selectedKind);
 }
 
 /**
@@ -135,10 +132,10 @@ async function collectExtractVariableActions(
 async function chooseAndApplyRefactoring(
   refactorActions: RefactorAction[],
 ): Promise<void> {
-  const [first, ...rest] = refactorActions;
+  const [first, ...rest] = (await chooseActionKind(refactorActions)) ?? [];
 
   if (!first) {
-    vscode.window.showInformationMessage("Can't extract variable.");
+    vscode.window.showInformationMessage("Can't perform refactor.");
     return;
   }
 
@@ -167,7 +164,34 @@ export async function extractVariable(
   editor: vscode.TextEditor,
 ): Promise<void> {
   const originalSelection = editor.selection;
-  const extractionActions = await collectExtractVariableActions(editor);
+  const extractionActions = await collectActionsByKind(
+    editor,
+    "refactor.extract.variable",
+  );
+  editor.selection = originalSelection;
+  await chooseAndApplyRefactoring(extractionActions);
+}
+
+export async function extractConstant(
+  editor: vscode.TextEditor,
+): Promise<void> {
+  const originalSelection = editor.selection;
+  const extractionActions = await collectActionsByKind(
+    editor,
+    "refactor.extract.constant",
+  );
+  editor.selection = originalSelection;
+  await chooseAndApplyRefactoring(extractionActions);
+}
+
+export async function extractFunction(
+  editor: vscode.TextEditor,
+): Promise<void> {
+  const originalSelection = editor.selection;
+  const extractionActions = await collectActionsByKind(
+    editor,
+    "refactor.extract.method",
+  );
   editor.selection = originalSelection;
   await chooseAndApplyRefactoring(extractionActions);
 }
