@@ -35,7 +35,7 @@
   "//": "START EXTENSION ATTRIBUTES",
   "publisher": "tamir-bahar",
   "name": "slightly-better",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Slightly Better VSCode",
   "displayName": "Slightly Better",
   "categories": [],
@@ -56,12 +56,8 @@
         "title": "Slightly Better: Extract Variable"
       },
       {
-        "command": "slightly-better.extract-constant",
-        "title": "Slightly Better: Extract Constant"
-      },
-      {
-        "command": "slightly-better.extract-function",
-        "title": "Slightly Better: Extract Function"
+        "command": "slightly-better.extract-method",
+        "title": "Slightly Better: Extract Method"
       }
     ],
     "keybindings": [
@@ -76,12 +72,7 @@
         "when": "editorHasCodeActionsProvider && textInputFocus && !editorReadonly"
       },
       {
-        "command": "slightly-better.extract-constant",
-        "key": "ctrl+alt+c",
-        "when": "editorHasCodeActionsProvider && textInputFocus && !editorReadonly"
-      },
-      {
-        "command": "slightly-better.extract-function",
+        "command": "slightly-better.extract-method",
         "key": "ctrl+alt+m",
         "when": "editorHasCodeActionsProvider && textInputFocus && !editorReadonly"
       }

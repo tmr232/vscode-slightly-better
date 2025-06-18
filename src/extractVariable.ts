@@ -172,21 +172,7 @@ export async function extractVariable(
   await chooseAndApplyRefactoring(extractionActions);
 }
 
-export async function extractConstant(
-  editor: vscode.TextEditor,
-): Promise<void> {
-  const originalSelection = editor.selection;
-  const extractionActions = await collectActionsByKind(
-    editor,
-    "refactor.extract.constant",
-  );
-  editor.selection = originalSelection;
-  await chooseAndApplyRefactoring(extractionActions);
-}
-
-export async function extractFunction(
-  editor: vscode.TextEditor,
-): Promise<void> {
+export async function extractMethod(editor: vscode.TextEditor): Promise<void> {
   const originalSelection = editor.selection;
   const extractionActions = await collectActionsByKind(
     editor,

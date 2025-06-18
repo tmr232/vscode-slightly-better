@@ -1,9 +1,5 @@
 import * as vscode from "vscode";
-import {
-  extractConstant,
-  extractFunction,
-  extractVariable,
-} from "./extractVariable.ts";
+import { extractMethod, extractVariable } from "./extractVariable.ts";
 
 export function activate(_context: vscode.ExtensionContext) {
   vscode.commands.registerTextEditorCommand(
@@ -25,16 +21,9 @@ export function activate(_context: vscode.ExtensionContext) {
   );
 
   vscode.commands.registerTextEditorCommand(
-    "slightly-better.extract-constant",
+    "slightly-better.extract-method",
     async (editor: vscode.TextEditor) => {
-      await extractConstant(editor);
-    },
-  );
-
-  vscode.commands.registerTextEditorCommand(
-    "slightly-better.extract-function",
-    async (editor: vscode.TextEditor) => {
-      await extractFunction(editor);
+      await extractMethod(editor);
     },
   );
 }

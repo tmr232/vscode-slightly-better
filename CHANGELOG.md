@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-06-18
+
+### Added
+
+- Add support for method (`Ctrl+Alt+M`) extraction.
+
+
 ## [1.1.0] - 2025-06-04
 
 ### Added
