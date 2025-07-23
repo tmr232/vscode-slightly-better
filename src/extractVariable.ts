@@ -142,7 +142,6 @@ async function chooseAndApplyRefactoring(
   const kindActions = (await chooseActionKind(refactorActions)) ?? [];
   const [first, ...rest] = kindActions;
   if (!first) {
-    vscode.window.showInformationMessage("Can't perform refactor.");
     return;
   }
 
