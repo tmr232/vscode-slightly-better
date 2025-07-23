@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-07-23
+
+### Added
+
+- When choosing the code to extract, it is selected in the editor, making it easier to see what you're choosing.
+
 ## [1.2.0] - 2025-06-18
 
 ### Added
