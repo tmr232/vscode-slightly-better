@@ -1,6 +1,10 @@
 import * as vscode from "vscode";
 
-type RefactorAction = { codeAction: vscode.CodeAction; text: string };
+type RefactorAction = {
+  codeAction: vscode.CodeAction;
+  text: string;
+  selection: vscode.Selection;
+};
 
 /**
  * Apply an existing code action
@@ -74,6 +78,7 @@ async function collectActionsByKind(
       extractionActions.push({
         codeAction: action,
         text: editor.document.getText(editor.selection),
+        selection: editor.selection,
       });
     }
     return extractionActions;
@@ -88,6 +93,7 @@ async function collectActionsByKind(
       extractionActions.push({
         codeAction,
         text: editor.document.getText(editor.selection),
+        selection: editor.selection,
       });
     }
   } while (await expandSelection(editor));
@@ -130,12 +136,12 @@ async function chooseActionKind(
  * @param refactorActions Refactorings to choose from
  */
 async function chooseAndApplyRefactoring(
+  editor: vscode.TextEditor,
   refactorActions: RefactorAction[],
 ): Promise<void> {
-  const [first, ...rest] = (await chooseActionKind(refactorActions)) ?? [];
-
+  const kindActions = (await chooseActionKind(refactorActions)) ?? [];
+  const [first, ...rest] = kindActions;
   if (!first) {
-    vscode.window.showInformationMessage("Can't perform refactor.");
     return;
   }
 
@@ -145,13 +151,60 @@ async function chooseAndApplyRefactoring(
   }
 
   // Now we have the actions and ranges - time to choose!
-  const selected = await vscode.window.showQuickPick(
-    refactorActions.map((item) => item.text),
-  );
+  const selected = await showSelection(editor, kindActions);
   if (selected) {
-    const item = refactorActions.find((i) => i.text === selected);
-    if (item) {
-      await applyCodeAction(item.codeAction);
+    await applyCodeAction(selected.codeAction);
+  }
+}
+
+class RefactorItem implements vscode.QuickPickItem {
+  label: string;
+  action: RefactorAction;
+
+  constructor(refactorAction: RefactorAction) {
+    this.action = refactorAction;
+    this.label = refactorAction.text;
+  }
+}
+
+async function showSelection(
+  editor: vscode.TextEditor,
+  refactorActions: RefactorAction[],
+): Promise<RefactorAction | undefined> {
+  const disposables: vscode.Disposable[] = [];
+  const originalSelection = editor.selection;
+  try {
+    return await new Promise<RefactorAction | undefined>((resolve) => {
+      const input = vscode.window.createQuickPick<RefactorItem>();
+
+      input.title = "Extract Variable...";
+      input.items = refactorActions.map((action) => new RefactorItem(action));
+      disposables.push(
+        input.onDidChangeSelection((items: readonly RefactorItem[]) => {
+          const item = items[0];
+          if (item) {
+            resolve(item.action);
+            input.hide();
+          }
+        }),
+        input.onDidHide(() => {
+          resolve(undefined);
+          input.dispose();
+        }),
+        input.onDidChangeActive((items: readonly RefactorItem[]) => {
+          const item = items[0];
+          if (item) {
+            editor.selection = item.action.selection;
+          }
+        }),
+      );
+
+      input.show();
+    });
+  } finally {
+    editor.selection = originalSelection;
+    for (const d of disposables) {
+      d.dispose();
     }
   }
 }
@@ -169,7 +222,7 @@ export async function extractVariable(
     "refactor.extract.variable",
   );
   editor.selection = originalSelection;
-  await chooseAndApplyRefactoring(extractionActions);
+  await chooseAndApplyRefactoring(editor, extractionActions);
 }
 
 export async function extractMethod(editor: vscode.TextEditor): Promise<void> {
@@ -179,5 +232,5 @@ export async function extractMethod(editor: vscode.TextEditor): Promise<void> {
     "refactor.extract.method",
   );
   editor.selection = originalSelection;
-  await chooseAndApplyRefactoring(extractionActions);
+  await chooseAndApplyRefactoring(editor, extractionActions);
 }
