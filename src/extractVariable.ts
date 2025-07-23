@@ -139,8 +139,8 @@ async function chooseAndApplyRefactoring(
   editor: vscode.TextEditor,
   refactorActions: RefactorAction[],
 ): Promise<void> {
-  const [first, ...rest] = (await chooseActionKind(refactorActions)) ?? [];
-
+  const kindActions = (await chooseActionKind(refactorActions)) ?? [];
+  const [first, ...rest] = kindActions;
   if (!first) {
     vscode.window.showInformationMessage("Can't perform refactor.");
     return;
@@ -152,7 +152,7 @@ async function chooseAndApplyRefactoring(
   }
 
   // Now we have the actions and ranges - time to choose!
-  const selected = await showSelection(editor, refactorActions);
+  const selected = await showSelection(editor, kindActions);
   if (selected) {
     await applyCodeAction(selected.codeAction);
   }
